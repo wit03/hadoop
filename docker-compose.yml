@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  namenode:
+    image: wit03/hadoop:3.4.0
+    ports: 
+        - "9870:9870"
+        - "8088:8088"
+    command: > 
+      bash -c "hdfs namenode & yarn resourcemanager "
+    hostname: hdfs-namenode
+
+  datanode:
+    image: wit03/hadoop:3.4.0
+    hostname: datanode
+    depends_on: 
+        - namenode
+    command: >
+      bash -c "hdfs datanode & yarn nodemanager "
+    ports:
+# The host port is randomly assigned by Docker, to allow scaling to multiple DataNodes on the same host
+      - "9864"
+    links:
+        - namenode:hdfs-namenode
+
+
+  secondarynamenode:
+    image: wit03/hadoop:3.4.0
+    command: hdfs secondarynamenode
+    ports:
+        - "9868:9868"
+    links:
+        - namenode:hdfs-namenode
